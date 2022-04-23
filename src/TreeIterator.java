@@ -1,4 +1,5 @@
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * @author Patrick Zdarsky / Rxcki
@@ -28,7 +29,7 @@ public class TreeIterator implements Iterator<Body>{
             }
         }
 
-        while(index < 8){
+        while (index < 8) {
             //Get PointObject at this index, and increase the index
             IPointObject current = node.entries[index++];
 
@@ -59,6 +60,9 @@ public class TreeIterator implements Iterator<Body>{
 
     @Override
     public Body next() {
+        if (nextBody == null)
+            throw new NoSuchElementException();
+
         Body currentNext = nextBody;
         nextBody = retrieveNextBody();
 

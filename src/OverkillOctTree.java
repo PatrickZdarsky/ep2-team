@@ -9,7 +9,6 @@ public class OverkillOctTree extends Octree {
 
     private ThreadPoolExecutor[] executorServices;
 
-
     public OverkillOctTree(double length, Vector3 center) {
         super(length, center);
 
@@ -29,10 +28,16 @@ public class OverkillOctTree extends Octree {
     }
 
     public void awaitAll() {
-        for (int i = 0; i < executorServices.length; i++) {
-            while (executorServices[i].getQueue().size() > 0) {
+        for (ThreadPoolExecutor executorService : executorServices) {
+            while (!executorService.getQueue().isEmpty()) {
 
             }
+        }
+    }
+
+    public void shutdown() {
+        for (ThreadPoolExecutor executorService : executorServices) {
+            executorService.shutdown();
         }
     }
 }

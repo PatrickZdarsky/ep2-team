@@ -37,6 +37,9 @@ public class Simulation {
         }
 
         System.out.println("Avg: "+(sum/times)+"ms");
+
+        if (octree instanceof OverkillOctTree)
+            ((OverkillOctTree) octree).shutdown();
     }
 
     private static double setup() {
