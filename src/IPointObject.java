@@ -1,5 +1,3 @@
-package galaxy;
-
 /**
  * @author Patrick Zdarsky / Rxcki
  */

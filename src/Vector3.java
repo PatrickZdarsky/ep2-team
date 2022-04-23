@@ -1,13 +1,17 @@
-package galaxy;
-
 // This class represents vectors in a 3D vector space.
-public class Vector3 {
+public class Vector3 implements Cloneable{
+
+    private static final Vector3 ZERO_VECTOR = new Vector3();
 
     private double x;
     private double y;
     private double z;
 
-    public Vector3() {}
+    public Vector3() {
+        x = 0;
+        y = 0;
+        z = 0;
+    }
 
     public Vector3(double x, double y, double z) {
         this.x = x;
@@ -15,7 +19,13 @@ public class Vector3 {
         this.z = z;
     }
 
-    double getX() {
+    public Vector3(Vector3 vector) {
+        this.x = vector.x;
+        this.y = vector.y;
+        this.z = vector.z;
+    }
+
+    public double getX() {
         return x;
     }
 
@@ -23,7 +33,7 @@ public class Vector3 {
         this.x = x;
     }
 
-    double getY() {
+    public double getY() {
         return y;
     }
 
@@ -31,13 +41,38 @@ public class Vector3 {
         this.y = y;
     }
 
-    double getZ() {
+    public double getZ() {
         return z;
     }
 
     void setZ(double z) {
         this.z = z;
     }
+
+    public Vector3 selfPlus(Vector3 vector3) {
+        x += vector3.x;
+        y += vector3.y;
+        z += vector3.z;
+
+        return this;
+    }
+
+    public Vector3 selfTimes(double d) {
+        x *= d;
+        y *= d;
+        z *= d;
+
+        return this;
+    }
+
+    public Vector3 selfMinus(Vector3 vector3) {
+        x -= vector3.x;
+        y -= vector3.y;
+        z -= vector3.z;
+
+        return this;
+    }
+
 
     // Returns the sum of this vector and vector 'v'.
     public Vector3 plus(Vector3 v) {
@@ -66,17 +101,23 @@ public class Vector3 {
 
     // Returns the length (norm) of this vector.
     public double length() {
-        return distanceTo(new Vector3());
+        return distanceTo(ZERO_VECTOR);
     }
 
     // Normalizes this vector: changes the length of this vector such that it becomes 1.
     // The direction and orientation of the vector is not affected.
-    public void normalize() {
+    public Vector3 normalize() {
         double length = length();
 
         x /= length;
         y /= length;
         z /= length;
+
+        return this;
+    }
+
+    public Vector3 clone() {
+        return new Vector3(this);
     }
 
 

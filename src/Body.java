@@ -1,11 +1,10 @@
-package galaxy;
-
 // This class represents celestial bodies like stars, planets, asteroids, etc..
 public class Body implements IPointObject {
 
     private double mass;
     private Vector3 massCenter; // position of the mass center.
     private Vector3 currentMovement;
+    private Vector3 appliedForce;
 
     public Body(double mass, Vector3 massCenter, Vector3 currentMovement) {
         this.mass = mass;
@@ -32,9 +31,9 @@ public class Body implements IPointObject {
     // on it, and updates the current movement accordingly.
     // (Movement depends on the mass of this body, its current movement and the exerted force.)
     // Hint: see simulation loop in Simulation.java to find out how this is done.
-    public void move(Vector3 force) {
+    public void move() {
         Vector3 newPosition = currentMovement.plus(
-                    massCenter.plus(force.times(1 / mass)));
+                    massCenter.plus(appliedForce.times(1 / mass)));
                         // F = m*a -> a = F/m
 
         // new minus old position.
@@ -64,6 +63,26 @@ public class Body implements IPointObject {
                 .times(1.0/mass);
 
         return new Body(mass, massCenter, movement);
+    }
+
+    // Returns a vector representing the gravitational force exerted by 'b' on this body.
+    // The gravitational Force F is calculated by F = G*(m1*m2)/(r*r), with m1 and m2 being the
+    // masses of the objects interacting, r being the distance between the centers of the masses
+    // and G being the gravitational constant.
+    // Hint: see simulation loop in Simulation.java to find out how this is done.
+    public Vector3 gravitationalForce(IPointObject b) {
+        Vector3 direction = b.getPosition().clone().selfMinus(this.massCenter);
+        double distance = direction.length();
+        if (distance == 0)
+            return new Vector3(0,0,0);
+
+        double force = Simulation.G * this.mass * b.getMass() / (distance * distance);
+
+        return direction.normalize().selfTimes(force);
+    }
+
+    public void setAppliedForce(Vector3 appliedForce) {
+        this.appliedForce = appliedForce;
     }
 
     // Returns a string with the information about this body including
