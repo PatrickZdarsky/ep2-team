@@ -48,17 +48,6 @@ public class TreeNode implements IPointObject, Iterable<Body> {
     }
 
     public void calculateForces(Body body) {
-
-        if (body == null)
-            throw new NullPointerException("Body is null");
-        if (body.getPosition() == null)
-            throw new NullPointerException("Body Position is null");
-        if (massCenter == null)
-            throw new NullPointerException("Masscenter is null");
-        if (massCenter.getPosition() == null)
-            throw new NullPointerException("Masscenter position is null");
-
-
         // if sector matches barnes hut approximation criteria, use the sector approximation
         if (length / body.getPosition().distanceTo(massCenter.getPosition()) < BARNES_HUT_THRESHOLD){
             body.addForce(body.gravitationalForce(massCenter));

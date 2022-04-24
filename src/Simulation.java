@@ -23,7 +23,7 @@ public class Simulation {
     // set some system parameters
     public static final double GALAXY_SIZE = 2 * AU; // the length of the galaxy
     public static final int NUMBER_OF_BODIES = 10_000;
-    public static final double OVERALL_SYSTEM_MASS = 20 * SUN_MASS; // kilograms
+    public static final double OVERALL_SYSTEM_MASS = 10000 * SUN_MASS; // kilograms
 
 
     public static Octree octree;
@@ -49,10 +49,11 @@ public class Simulation {
 
         CodeDraw cd = new CodeDraw(1000, 1000);
 
+        long nano = System.nanoTime();
         int count = 0;
         while(true) {
 
-            long nano = System.nanoTime();
+
             octree.advanceSimulation();
             octree.rebuildTree();
             //System.out.println((System.nanoTime()-nano)/1000000+"ms");
@@ -63,6 +64,8 @@ public class Simulation {
                 count = 0;
 
                 draw(cd);
+                System.out.println((System.nanoTime()-nano)/1000000+"ms");
+                nano = System.nanoTime();
             }
         }
     }
@@ -71,7 +74,7 @@ public class Simulation {
         // clear codedraw
         cd.clear(Color.BLACK);
 
-        StreamSupport.stream(octree.spliterator(), true).forEach(body -> body.draw(cd));
+        StreamSupport.stream(octree.spliterator(), false).forEach(body -> body.draw(cd));
 
         // show updated positions
         cd.show();

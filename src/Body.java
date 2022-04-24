@@ -57,9 +57,9 @@ public class Body implements IPointObject {
     // of the returned body is the sum of the impulses of 'this' and 'b'.
     public Body merge(Body b) {
         double mass = this.mass + b.mass;
-        Vector3 massCenter = b.massCenter.times(b.mass)
-                .plus(this.massCenter.times(this.mass))
-                .times(1/mass);
+        Vector3 massCenter = b.massCenter.clone().selfTimes(b.mass)
+                .selfPlus(this.massCenter.selfTimes(this.mass))
+                .selfTimes(1/mass);
         Vector3 movement = b.currentMovement.times(b.mass)
                 .plus(this.currentMovement.times(this.mass))
                 .times(1.0/mass);
@@ -91,9 +91,11 @@ public class Body implements IPointObject {
     }
 
     public void draw(CodeDraw cd) {
-
         cd.setColor(SpaceDraw.massToColor(this.mass));
-        this.massCenter.drawAsFilledCircle(cd, SpaceDraw.massToRadius(this.mass));
+
+        //cheap 3d illusion, nothing fancy
+        double perspectiveMultiplicative = map(getPosition().getZ() / (Simulation.GALAXY_SIZE/2), 0, 2, 0, 5);
+        this.massCenter.drawAsFilledCircle(cd, perspectiveMultiplicative * SpaceDraw.massToRadius(this.mass));
     }
 
     // Returns a string with the information about this body including
@@ -103,5 +105,8 @@ public class Body implements IPointObject {
         return String.format("%e kg, position: %s m, movement: %s m/s, force: %s", mass, massCenter, currentMovement, appliedForce);
     }
 
+    private double map(double val, double min, double max, double newMin, double newMax) {
+        return newMin + val * ((newMax-newMin) / (max-min));
+    }
 }
 
