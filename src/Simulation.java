@@ -1,3 +1,6 @@
+import codedraw.CodeDraw;
+
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -18,32 +21,15 @@ public class Simulation {
 
     // set some system parameters
     public static final double GALAXY_SIZE = 2 * AU; // the length of the galaxy
-    public static final int NUMBER_OF_BODIES = 100_000;
+    public static final int NUMBER_OF_BODIES = 5_000;
     public static final double OVERALL_SYSTEM_MASS = 20 * SUN_MASS; // kilograms
 
 
     public static Octree octree;
 
     public static void main(String[] args) {
-        octree = new OverkillOctTree(GALAXY_SIZE, new Vector3());
+        octree = new Octree(GALAXY_SIZE, new Vector3());
 
-        setup();
-        int times = 100;
-        double sum = 0;
-        for (int i = 0; i < times; i++) {
-            double time = setup();
-            sum += time;
-            System.out.println(i+": "+time+"ms");
-        }
-
-        System.out.println("Avg: "+(sum/times)+"ms");
-
-        if (octree instanceof OverkillOctTree)
-            ((OverkillOctTree) octree).shutdown();
-    }
-
-    private static double setup() {
-        List<Body> bodies = new ArrayList<>();
         Random random = new Random();
 
         for (int i = 0; i < NUMBER_OF_BODIES; i++) {
@@ -52,34 +38,43 @@ public class Simulation {
                     new Vector3(0 + random.nextGaussian() * 5e3, 0 + random.nextGaussian() * 5e3, 0 + random.nextGaussian() * 5e3));
 
             if (Math.abs(body.getPosition().getX()) > (GALAXY_SIZE/2) || Math.abs(body.getPosition().getY()) > (GALAXY_SIZE/2) || Math.abs(body.getPosition().getZ()) > (GALAXY_SIZE/2)) {
-               // System.out.println("Invalid position!");
+                // System.out.println("Invalid position!");
                 i--;
                 continue;
             }
 
-            bodies.add(body);
-        }
-
-        octree.clear();
-
-//        System.out.println(bodies.get(0).gravitationalForce(bodies.get(1)));
-//
-//        if (true)
-//            return 0;
-
-        long time = System.nanoTime();
-
-        for (Body body : bodies) {
             octree.add(body);
         }
 
-        if (octree instanceof OverkillOctTree)
-            ((OverkillOctTree) octree).awaitAllInsertions();
+        CodeDraw cd = new CodeDraw(1200, 1200);
 
+        int count = 0;
+        while(true) {
 
-        octree.advanceSimulation();
+            long nano = System.nanoTime();
+            octree.advanceSimulation();
+            octree.rebuildTree();
+            //System.out.println((System.nanoTime()-nano)/1000000+"ms");
 
-        return (System.nanoTime() - time)/1000000.0;
+            count++;
+
+            if (count > 20) {
+                count = 0;
+
+                draw(cd);
+            }
+        }
     }
 
+    private static void draw(CodeDraw cd) {
+        // clear codedraw
+        cd.clear(Color.BLACK);
+
+        for (var body : octree) {
+            body.draw(cd);
+        }
+
+        // show updated positions
+        cd.show();
+    }
 }

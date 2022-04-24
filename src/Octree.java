@@ -1,8 +1,11 @@
 import java.util.Iterator;
+import java.util.stream.StreamSupport;
 
 public class Octree implements Iterable<Body>{
 
     protected TreeNode root;
+
+    protected int size = 0;
 
     //Welcome to the most useless class in this project
 
@@ -10,8 +13,17 @@ public class Octree implements Iterable<Body>{
         root = new TreeNode(center, length);
     }
 
-    public void add(Body body) {
+    public boolean add(Body body) {
+        if (Math.abs(body.getPosition().getX() - root.getCenterPosition().getX()) > root.getLength()/2
+            || Math.abs(body.getPosition().getY() - root.getCenterPosition().getY()) > root.getLength()/2
+            || Math.abs(body.getPosition().getZ() - root.getCenterPosition().getZ()) > root.getLength()/2)
+            return false;
+
+
         root.add(body);
+        size++;
+
+        return true;
     }
 
     public void calculateForces(Body body) {
@@ -19,13 +31,15 @@ public class Octree implements Iterable<Body>{
     }
 
     public void advanceSimulation() {
-        for (Body body : this) {
-            calculateForces(body);
-            //System.out.println("Calculated forces for "+body);
-        }
+        StreamSupport.stream(this.spliterator(), true).forEach(this::calculateForces);
+        StreamSupport.stream(this.spliterator(), true).forEach(Body::move);
+    }
 
-//        for (Body body : this)
-//            body.move();
+    public void rebuildTree() {
+        var oldRoot = root;
+        clear();
+
+        StreamSupport.stream(oldRoot.spliterator(), true).forEach(this::add);
     }
 
     public void clear() {

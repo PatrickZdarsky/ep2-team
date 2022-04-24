@@ -1,3 +1,5 @@
+import codedraw.CodeDraw;
+
 // This class represents celestial bodies like stars, planets, asteroids, etc..
 public class Body implements IPointObject {
 
@@ -33,7 +35,7 @@ public class Body implements IPointObject {
     // Hint: see simulation loop in Simulation.java to find out how this is done.
     public void move() {
         Vector3 newPosition = currentMovement.plus(
-                    massCenter.plus(appliedForce.times(1 / mass)));
+                    massCenter.plus(appliedForce == null ? Vector3.ZERO_VECTOR : appliedForce.times(1 / mass)));
                         // F = m*a -> a = F/m
 
         // new minus old position.
@@ -81,15 +83,17 @@ public class Body implements IPointObject {
         return direction.normalize().selfTimes(force);
     }
 
-    public void setAppliedForce(Vector3 appliedForce) {
-        this.appliedForce = appliedForce;
-    }
-
     public void addForce(Vector3 force) {
         if (appliedForce == null)
             appliedForce = force;
         else
             appliedForce.selfPlus(force);
+    }
+
+    public void draw(CodeDraw cd) {
+
+        cd.setColor(SpaceDraw.massToColor(this.mass));
+        this.massCenter.drawAsFilledCircle(cd, SpaceDraw.massToRadius(this.mass));
     }
 
     // Returns a string with the information about this body including

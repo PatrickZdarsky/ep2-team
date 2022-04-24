@@ -1,3 +1,5 @@
+import codedraw.CodeDraw;
+
 // This class represents vectors in a 3D vector space.
 public class Vector3 implements Cloneable{
 
@@ -126,6 +128,14 @@ public class Vector3 implements Cloneable{
 
     public Vector3 clone() {
         return new Vector3(this);
+    }
+
+    public void drawAsFilledCircle(CodeDraw cd, double radius) {
+
+        double x = cd.getWidth() * (this.x + Simulation.GALAXY_SIZE / 2) / Simulation.GALAXY_SIZE;
+        double y = cd.getWidth() * (this.y + Simulation.GALAXY_SIZE / 2) / Simulation.GALAXY_SIZE;
+        radius = cd.getWidth() * radius / Simulation.GALAXY_SIZE;
+        cd.fillCircle(x, y, Math.max(radius, 1.5));
     }
 
 

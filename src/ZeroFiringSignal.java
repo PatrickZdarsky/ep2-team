@@ -3,7 +3,7 @@
  */
 public class ZeroFiringSignal {
 
-    private int count = 0;
+    private volatile int count = 0;
 
     public synchronized void acquire() {
         count++;
