@@ -85,11 +85,18 @@ public class Body implements IPointObject {
         this.appliedForce = appliedForce;
     }
 
+    public void addForce(Vector3 force) {
+        if (appliedForce == null)
+            appliedForce = force;
+        else
+            appliedForce.selfPlus(force);
+    }
+
     // Returns a string with the information about this body including
     // mass, position (mass center) and current movement. Example:
     // "5.972E24 kg, position: [1.48E11,0.0,0.0] m, movement: [0.0,29290.0,0.0] m/s."
     public String toString() {
-        return String.format("%e kg, position: %s m, movement: %s m/s", mass, massCenter, currentMovement);
+        return String.format("%e kg, position: %s m, movement: %s m/s, force: %s", mass, massCenter, currentMovement, appliedForce);
     }
 
 }

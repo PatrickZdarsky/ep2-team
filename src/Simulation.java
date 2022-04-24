@@ -18,7 +18,7 @@ public class Simulation {
 
     // set some system parameters
     public static final double GALAXY_SIZE = 2 * AU; // the length of the galaxy
-    public static final int NUMBER_OF_BODIES = 100_000;
+    public static final int NUMBER_OF_BODIES = 10_000;
     public static final double OVERALL_SYSTEM_MASS = 20 * SUN_MASS; // kilograms
 
 
@@ -74,16 +74,10 @@ public class Simulation {
         }
 
         if (octree instanceof OverkillOctTree)
-            ((OverkillOctTree) octree).awaitAll();
+            ((OverkillOctTree) octree).awaitAllInsertions();
 
 
-        int count = 0;
-        for (Body body : octree) {
-            count++;
-            body.setAppliedForce(octree.calculateForces(body));
-        }
-        System.out.println(count);
-
+        octree.advanceSimulation();
 
         return (System.nanoTime() - time)/1000000.0;
     }

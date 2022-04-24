@@ -7,14 +7,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class OverkillOctTree extends Octree {
 
-    private ThreadPoolExecutor[] executorServices;
+    private final ThreadPoolExecutor[] quadrantExecutors;
 
     public OverkillOctTree(double length, Vector3 center) {
         super(length, center);
 
-        executorServices = new ThreadPoolExecutor[4];
-        for (int i = 0; i < executorServices.length; i++) {
-            executorServices[i] = new ThreadPoolExecutor(1, 1,
+        quadrantExecutors = new ThreadPoolExecutor[4];
+        for (int i = 0; i < quadrantExecutors.length; i++) {
+            quadrantExecutors[i] = new ThreadPoolExecutor(1, 1,
                     0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>());
         }
@@ -22,13 +22,13 @@ public class OverkillOctTree extends Octree {
 
     @Override
     public void add(Body body) {
-        byte quadrant = root.getQuadrant(body);
+        byte octant = root.getOctant(body);
 
-        executorServices[quadrant%4].execute(() -> super.add(body));
+        quadrantExecutors[octant%4].execute(() -> super.add(body));
     }
 
-    public void awaitAll() {
-        for (ThreadPoolExecutor executorService : executorServices) {
+    public void awaitAllInsertions() {
+        for (ThreadPoolExecutor executorService : quadrantExecutors) {
             while (!executorService.getQueue().isEmpty()) {
 
             }
@@ -36,7 +36,7 @@ public class OverkillOctTree extends Octree {
     }
 
     public void shutdown() {
-        for (ThreadPoolExecutor executorService : executorServices) {
+        for (ThreadPoolExecutor executorService : quadrantExecutors) {
             executorService.shutdown();
         }
     }

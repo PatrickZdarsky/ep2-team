@@ -30,7 +30,7 @@ public class TreeNode implements IPointObject, Iterable<Body> {
             massCenter.merge(pointObject);
         }
 
-        int quadrant = getQuadrant(pointObject);
+        int quadrant = getOctant(pointObject);
 
         IPointObject currentEntry = entries[quadrant];
         if (currentEntry == null) {
@@ -47,41 +47,38 @@ public class TreeNode implements IPointObject, Iterable<Body> {
         }
     }
 
-    public Vector3 calculateForces(Body body) {
+    public void calculateForces(Body body) {
         // if sector matches barnes hut approximation criteria, use the sector approximation
         if (length / body.getPosition().distanceTo(massCenter.getPosition()) < BARNES_HUT_THRESHOLD){
-            return body.gravitationalForce(massCenter);
+            body.addForce(body.gravitationalForce(massCenter));
         }
 
-        var force = new Vector3();
         for (IPointObject pointObject : entries) {
             if (pointObject == null)
                 continue;
 
             if (pointObject instanceof Body) {
-                force.selfPlus(((Body) pointObject).gravitationalForce(body));
+                body.addForce(((Body) pointObject).gravitationalForce(body));
 
             } else {
-                force.selfPlus(((TreeNode) pointObject).calculateForces(body));
+                ((TreeNode) pointObject).calculateForces(body);
             }
         }
-
-        return force;
     }
 
-    byte getQuadrant(IPointObject pointObject) {
-        byte quadrant = 0;
+    byte getOctant(IPointObject pointObject) {
+        byte octant = 0;
 
         // 0 - 3 lower; 4-7 upper
-        quadrant += checkValue(pointObject.getPosition().getZ(), centerPosition.getZ()) ? 4 : 0;
-        quadrant += checkValue(pointObject.getPosition().getY(), centerPosition.getY()) ? 2 : 0;
-        quadrant += checkValue(pointObject.getPosition().getX(), centerPosition.getX()) ? 1 : 0;
+        octant += checkValue(pointObject.getPosition().getZ(), centerPosition.getZ()) ? 4 : 0;
+        octant += checkValue(pointObject.getPosition().getY(), centerPosition.getY()) ? 2 : 0;
+        octant += checkValue(pointObject.getPosition().getX(), centerPosition.getX()) ? 1 : 0;
 
 //        var z = checkValue(pointObject.getPosition().getZ(), centerPosition.getZ());
 //        var y = checkValue(pointObject.getPosition().getY(), centerPosition.getY());
 //        var x = checkValue(pointObject.getPosition().getX(), centerPosition.getX());
 
-        return quadrant;
+        return octant;
     }
 
     private Vector3 getQuadrantCenter(int quadrant) {

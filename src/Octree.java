@@ -14,8 +14,18 @@ public class Octree implements Iterable<Body>{
         root.add(body);
     }
 
-    public Vector3 calculateForces(Body body) {
-        return root.calculateForces(body);
+    public void calculateForces(Body body) {
+        root.calculateForces(body);
+    }
+
+    public void advanceSimulation() {
+        for (Body body : this) {
+            calculateForces(body);
+            //System.out.println("Calculated forces for "+body);
+        }
+
+//        for (Body body : this)
+//            body.move();
     }
 
     public void clear() {
