@@ -31,7 +31,7 @@ public class TreeIterator implements Iterator<Body>{
 
         while (index < 8) {
             //Get PointObject at this index, and increase the index
-            IPointObject current = node.entries[index++];
+            PointObject current = node.entries[index++];
 
             if (current == null) {
                 //Empty, skip

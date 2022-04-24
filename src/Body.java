@@ -1,30 +1,14 @@
 import codedraw.CodeDraw;
 
 // This class represents celestial bodies like stars, planets, asteroids, etc..
-public class Body implements IPointObject {
+public class Body extends PointObject {
 
-    private double mass;
-    private Vector3 massCenter; // position of the mass center.
     private Vector3 currentMovement;
     private Vector3 appliedForce;
 
     public Body(double mass, Vector3 massCenter, Vector3 currentMovement) {
-        this.mass = mass;
-        this.massCenter = massCenter;
+        super(massCenter, mass);
         this.currentMovement = currentMovement;
-    }
-
-    public double getMass() {
-        return mass;
-    }
-
-    public Vector3 getPosition() {
-        return massCenter;
-    }
-
-    // Returns the distance between the mass centers of this body and the specified body 'b'.
-    public double distanceTo(Body b) {
-        return massCenter.distanceTo(b.massCenter);
     }
 
 
@@ -35,14 +19,14 @@ public class Body implements IPointObject {
     // Hint: see simulation loop in Simulation.java to find out how this is done.
     public void move() {
         Vector3 newPosition = currentMovement.plus(
-                    massCenter.plus(appliedForce == null ? Vector3.ZERO_VECTOR : appliedForce.times(1 / mass)));
+                position.plus(appliedForce == null ? Vector3.ZERO_VECTOR : appliedForce.times(1 / mass)));
                         // F = m*a -> a = F/m
 
         // new minus old position.
-        Vector3 newMovement = newPosition.minus(massCenter);
+        Vector3 newMovement = newPosition.minus(position);
 
         // update body state
-        massCenter = newPosition;
+        position = newPosition;
         currentMovement = newMovement;
     }
 
@@ -53,27 +37,13 @@ public class Body implements IPointObject {
         return SpaceDraw.massToRadius(mass);
     }
 
-    // Returns a new body that is formed by the collision of this body and 'b'. The impulse
-    // of the returned body is the sum of the impulses of 'this' and 'b'.
-    public Body merge(Body b) {
-        double mass = this.mass + b.mass;
-        Vector3 massCenter = b.massCenter.clone().selfTimes(b.mass)
-                .selfPlus(this.massCenter.selfTimes(this.mass))
-                .selfTimes(1/mass);
-        Vector3 movement = b.currentMovement.times(b.mass)
-                .plus(this.currentMovement.times(this.mass))
-                .times(1.0/mass);
-
-        return new Body(mass, massCenter, movement);
-    }
-
     // Returns a vector representing the gravitational force exerted by 'b' on this body.
     // The gravitational Force F is calculated by F = G*(m1*m2)/(r*r), with m1 and m2 being the
     // masses of the objects interacting, r being the distance between the centers of the masses
     // and G being the gravitational constant.
     // Hint: see simulation loop in Simulation.java to find out how this is done.
-    public Vector3 gravitationalForce(IPointObject b) {
-        Vector3 direction = b.getPosition().clone().selfMinus(this.massCenter);
+    public Vector3 gravitationalForce(PointObject b) {
+        Vector3 direction = b.getPosition().clone().selfMinus(position);
         double distance = direction.length();
         if (distance == 0)
             return direction.setValue(0, 0, 0); //re-use the vector and set its value to zero
@@ -95,14 +65,14 @@ public class Body implements IPointObject {
 
         //cheap 3d illusion, nothing fancy
         double perspectiveMultiplicative = map(getPosition().getZ() / (Simulation.GALAXY_SIZE/2), 0, 2, 0, 5);
-        this.massCenter.drawAsFilledCircle(cd, perspectiveMultiplicative * SpaceDraw.massToRadius(this.mass));
+        position.drawAsFilledCircle(cd, perspectiveMultiplicative * SpaceDraw.massToRadius(this.mass));
     }
 
     // Returns a string with the information about this body including
     // mass, position (mass center) and current movement. Example:
     // "5.972E24 kg, position: [1.48E11,0.0,0.0] m, movement: [0.0,29290.0,0.0] m/s."
     public String toString() {
-        return String.format("%e kg, position: %s m, movement: %s m/s, force: %s", mass, massCenter, currentMovement, appliedForce);
+        return String.format("%e kg, position: %s m, movement: %s m/s, force: %s", mass, position, currentMovement, appliedForce);
     }
 
     private double map(double val, double min, double max, double newMin, double newMax) {

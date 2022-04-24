@@ -1,12 +1,10 @@
 import java.util.Iterator;
 
-public class TreeNode implements IPointObject, Iterable<Body> {
+public class TreeNode extends PointObject implements Iterable<Body> {
 
     public static final double BARNES_HUT_THRESHOLD = 1;
 
-    IPointObject[] entries;
-
-    private MassCenter massCenter;
+    PointObject[] entries;
 
     //Position and size of this sector
     private final Vector3 centerPosition;
@@ -15,24 +13,19 @@ public class TreeNode implements IPointObject, Iterable<Body> {
     public TreeNode(Vector3 centerPosition, double length) {
         this.centerPosition = centerPosition;
         this.length = length;
-        entries = new IPointObject[8];
+        entries = new PointObject[8];
     }
 
     /**
      * Adds a body to this node and updates the massCenter and mass accordingly
      * @param pointObject The pointObject to add
      */
-    public void add(IPointObject pointObject) {
-        if (massCenter == null) {
-            massCenter = new MassCenter(pointObject);
-        } else {
-            //Calculate massCenter
-            massCenter.merge(pointObject);
-        }
+    public void add(PointObject pointObject) {
+        merge(pointObject);
 
         int quadrant = getOctant(pointObject);
 
-        IPointObject currentEntry = entries[quadrant];
+        PointObject currentEntry = entries[quadrant];
         if (currentEntry == null) {
             entries[quadrant] = pointObject;
         } else if (currentEntry instanceof TreeNode){
@@ -49,12 +42,12 @@ public class TreeNode implements IPointObject, Iterable<Body> {
 
     public void calculateForces(Body body) {
         // if sector matches barnes hut approximation criteria, use the sector approximation
-        if (length / body.getPosition().distanceTo(massCenter.getPosition()) < BARNES_HUT_THRESHOLD){
-            body.addForce(body.gravitationalForce(massCenter));
+        if (length / body.getPosition().distanceTo(position) < BARNES_HUT_THRESHOLD){
+            body.addForce(body.gravitationalForce(this));
             return;
         }
 
-        for (IPointObject pointObject : entries) {
+        for (PointObject pointObject : entries) {
             if (pointObject == null)
                 continue;
 
@@ -67,7 +60,7 @@ public class TreeNode implements IPointObject, Iterable<Body> {
         }
     }
 
-    byte getOctant(IPointObject pointObject) {
+    byte getOctant(PointObject pointObject) {
         byte octant = 0;
 
         // 0 - 3 lower; 4-7 upper
@@ -95,16 +88,6 @@ public class TreeNode implements IPointObject, Iterable<Body> {
 //            throw new IllegalStateException("Entry should not be in this node! diff: "+diff+" length: "+length/2);
 
         return diff > 0;
-    }
-
-    @Override
-    public Vector3 getPosition() {
-        return massCenter.getPosition();
-    }
-
-    @Override
-    public double getMass() {
-        return massCenter.getMass();
     }
 
     public double getLength() {

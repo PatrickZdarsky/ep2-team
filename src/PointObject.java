@@ -1,17 +1,23 @@
 /**
  * @author Patrick Zdarsky / Rxcki
  */
-public class MassCenter implements IPointObject {
+public abstract class PointObject {
 
-    private final Vector3 position;
-    private double mass;
+    protected Vector3 position;
 
-    public MassCenter(IPointObject pointObject) {
-        position = new Vector3(pointObject.getPosition());
-        mass = pointObject.getMass();
+    protected double mass;
+
+    public PointObject(Vector3 position, double mass) {
+        this.position = position;
+        this.mass = mass;
     }
 
-    public void merge(IPointObject pointObject) {
+    public PointObject() {
+        position = new Vector3();
+        mass = 0;
+    }
+
+    public void merge(PointObject pointObject) {
         double massSum = mass + pointObject.getMass();
         position.setX((mass*position.getX() + pointObject.getMass()*pointObject.getPosition().getX()) / massSum);
         position.setY((mass*position.getY() + pointObject.getMass()*pointObject.getPosition().getY()) / massSum);
@@ -26,13 +32,5 @@ public class MassCenter implements IPointObject {
 
     public double getMass() {
         return mass;
-    }
-
-    @Override
-    public String toString() {
-        return "MassCenter{" +
-                "position=" + position +
-                ", mass=" + mass +
-                '}';
     }
 }
