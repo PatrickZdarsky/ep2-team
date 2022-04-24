@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.StreamSupport;
 
 public class Simulation {
 
@@ -21,7 +22,7 @@ public class Simulation {
 
     // set some system parameters
     public static final double GALAXY_SIZE = 2 * AU; // the length of the galaxy
-    public static final int NUMBER_OF_BODIES = 5_000;
+    public static final int NUMBER_OF_BODIES = 10_000;
     public static final double OVERALL_SYSTEM_MASS = 20 * SUN_MASS; // kilograms
 
 
@@ -46,7 +47,7 @@ public class Simulation {
             octree.add(body);
         }
 
-        CodeDraw cd = new CodeDraw(1200, 1200);
+        CodeDraw cd = new CodeDraw(1000, 1000);
 
         int count = 0;
         while(true) {
@@ -58,7 +59,7 @@ public class Simulation {
 
             count++;
 
-            if (count > 20) {
+            if (count > 5) {
                 count = 0;
 
                 draw(cd);
@@ -70,9 +71,7 @@ public class Simulation {
         // clear codedraw
         cd.clear(Color.BLACK);
 
-        for (var body : octree) {
-            body.draw(cd);
-        }
+        StreamSupport.stream(octree.spliterator(), true).forEach(body -> body.draw(cd));
 
         // show updated positions
         cd.show();
