@@ -1,7 +1,7 @@
 // This class represents vectors in a 3D vector space.
 public class Vector3 implements Cloneable{
 
-    private static final Vector3 ZERO_VECTOR = new Vector3();
+    public static final Vector3 ZERO_VECTOR = new Vector3();
 
     private double x;
     private double y;
@@ -47,6 +47,14 @@ public class Vector3 implements Cloneable{
 
     void setZ(double z) {
         this.z = z;
+    }
+
+    public Vector3 setValue(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+
+        return this;
     }
 
     public Vector3 selfPlus(Vector3 vector3) {

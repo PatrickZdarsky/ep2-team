@@ -51,6 +51,7 @@ public class TreeNode implements IPointObject, Iterable<Body> {
         // if sector matches barnes hut approximation criteria, use the sector approximation
         if (length / body.getPosition().distanceTo(massCenter.getPosition()) < BARNES_HUT_THRESHOLD){
             body.addForce(body.gravitationalForce(massCenter));
+            return;
         }
 
         for (IPointObject pointObject : entries) {

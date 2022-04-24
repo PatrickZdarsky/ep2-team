@@ -74,9 +74,9 @@ public class Body implements IPointObject {
         Vector3 direction = b.getPosition().clone().selfMinus(this.massCenter);
         double distance = direction.length();
         if (distance == 0)
-            return new Vector3(0,0,0);
+            return direction.setValue(0, 0, 0); //re-use the vector and set its value to zero
 
-        double force = Simulation.G * this.mass * b.getMass() / (distance * distance);
+        double force = Simulation.G * mass * b.getMass() / (distance * distance);
 
         return direction.normalize().selfTimes(force);
     }
