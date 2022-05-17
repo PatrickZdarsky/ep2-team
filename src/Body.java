@@ -18,12 +18,15 @@ public class Body extends PointObject {
     // (Movement depends on the mass of this body, its current movement and the exerted force.)
     // Hint: see simulation loop in Simulation.java to find out how this is done.
     public void move() {
-        Vector3 newPosition = currentMovement.plus(
-                position.plus(appliedForce == null ? Vector3.ZERO_VECTOR : appliedForce.times(1 / mass)));
+        var newPosition = currentMovement.clone().add(
+                position.clone().add(appliedForce == null ? Vector3.ZERO_VECTOR : appliedForce.multiply(1 / mass)));
                         // F = m*a -> a = F/m
 
+        //Reset applied force
+        appliedForce = new Vector3();
+
         // new minus old position.
-        Vector3 newMovement = newPosition.minus(position);
+        var newMovement = newPosition.clone().subtract(position);
 
         // update body state
         position = newPosition;
@@ -43,21 +46,21 @@ public class Body extends PointObject {
     // and G being the gravitational constant.
     // Hint: see simulation loop in Simulation.java to find out how this is done.
     public Vector3 gravitationalForce(PointObject b) {
-        Vector3 direction = b.getPosition().clone().selfMinus(position);
+        Vector3 direction = b.getPosition().clone().subtract(position);
         double distance = direction.length();
         if (distance == 0)
             return direction.setValue(0, 0, 0); //re-use the vector and set its value to zero
 
         double force = Simulation.G * mass * b.getMass() / (distance * distance);
 
-        return direction.normalize().selfTimes(force);
+        return direction.normalize().multiply(force);
     }
 
     public void addForce(Vector3 force) {
         if (appliedForce == null)
             appliedForce = force;
         else
-            appliedForce.selfPlus(force);
+            appliedForce.add(force);
     }
 
     public void draw(CodeDraw cd) {

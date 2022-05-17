@@ -63,20 +63,21 @@ public class Simulation {
             if (count > 5) {
                 count = 0;
 
-                draw(cd);
-                System.out.println((System.nanoTime()-nano)/1000000+"ms");
+                // clear codedraw
+                cd.clear(Color.BLACK);
+
+                StreamSupport.stream(octree.spliterator(), false).forEach(body -> body.draw(cd));
+
+                cd.setColor(Color.WHITE);
+                cd.drawText(10, 20, "Time: "+(System.nanoTime()-nano)/5000000+"ms");
+                cd.drawText(10, 40, "FPS: "+Math.round(10/((System.nanoTime()-nano)/1000000000.0))/10.0);
+                cd.drawText(10, 60, "Bodies: "+octree.getSize());
+
+                cd.show();
+
+               // System.out.println((System.nanoTime()-nano)/1000000+"ms");
                 nano = System.nanoTime();
             }
         }
-    }
-
-    private static void draw(CodeDraw cd) {
-        // clear codedraw
-        cd.clear(Color.BLACK);
-
-        StreamSupport.stream(octree.spliterator(), false).forEach(body -> body.draw(cd));
-
-        // show updated positions
-        cd.show();
     }
 }

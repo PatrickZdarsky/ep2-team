@@ -39,11 +39,16 @@ public class Octree implements Iterable<Body>{
         var oldRoot = root;
         clear();
 
-        StreamSupport.stream(oldRoot.spliterator(), true).forEach(this::add);
+        StreamSupport.stream(oldRoot.spliterator(), false).forEach(this::add);
     }
 
     public void clear() {
         root = new TreeNode(root.getCenterPosition(), root.getLength());
+        size = 0;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     @Override

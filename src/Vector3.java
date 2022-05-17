@@ -59,7 +59,7 @@ public class Vector3 implements Cloneable{
         return this;
     }
 
-    public Vector3 selfPlus(Vector3 vector3) {
+    public Vector3 add(Vector3 vector3) {
         x += vector3.x;
         y += vector3.y;
         z += vector3.z;
@@ -67,7 +67,7 @@ public class Vector3 implements Cloneable{
         return this;
     }
 
-    public Vector3 selfTimes(double d) {
+    public Vector3 multiply(double d) {
         x *= d;
         y *= d;
         z *= d;
@@ -75,28 +75,12 @@ public class Vector3 implements Cloneable{
         return this;
     }
 
-    public Vector3 selfMinus(Vector3 vector3) {
+    public Vector3 subtract(Vector3 vector3) {
         x -= vector3.x;
         y -= vector3.y;
         z -= vector3.z;
 
         return this;
-    }
-
-
-    // Returns the sum of this vector and vector 'v'.
-    public Vector3 plus(Vector3 v) {
-        return new Vector3(x+v.x, y+v.y, z+v.z);
-    }
-
-    // Returns the product of this vector and 'd'.
-    public Vector3 times(double d) {
-        return new Vector3(x*d, y*d, z*d);
-    }
-
-    // Returns the sum of this vector and -1*v.
-    public Vector3 minus(Vector3 v) {
-        return plus(v.times(-1));
     }
 
     // Returns the Euclidean distance of this vector

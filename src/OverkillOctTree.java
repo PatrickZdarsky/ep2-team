@@ -16,8 +16,6 @@ public class OverkillOctTree extends Octree {
     private final ExecutorService simulationExecutor;
     private final ZeroFiringSignal simulationSignal;
 
-    private final Phaser insertionPhaser;
-
     public OverkillOctTree(double length, Vector3 center) {
         super(length, center);
 
@@ -28,7 +26,6 @@ public class OverkillOctTree extends Octree {
                     new LinkedBlockingQueue<>());
         }
         insertionSignal = new ZeroFiringSignal();
-        insertionPhaser = new Phaser();
 
         simulationExecutor = Executors.newWorkStealingPool(4);
         simulationSignal = new ZeroFiringSignal();
@@ -37,55 +34,49 @@ public class OverkillOctTree extends Octree {
     @Override
     public boolean add(Body body) {
         byte octant = root.getOctant(body);
-        insertionPhaser.register();
+        insertionSignal.acquire();
 
         quadrantExecutors[octant%4].execute(() -> {
-            insertionPhaser.arriveAndAwaitAdvance();
             super.add(body);
-            insertionPhaser.arriveAndDeregister();
+            insertionSignal.release();
         });
 
         return true;
     }
 
     @Override
-    public void advanceSimulation() {
-        for (Body body : this) {
-            simulationExecutor.execute(() -> {
-                simulationSignal.acquire();
+    public void rebuildTree() {
+        super.rebuildTree();
 
-                calculateForces(body);
-
-                simulationSignal.release();
-            });
-        }
-
-        simulationSignal.waitUntilZero();
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        for (Body body : this)
-            simulationExecutor.execute(() -> {
-                simulationSignal.acquire();
-
-                body.move();
-
-                simulationSignal.release();
-            });
-        simulationSignal.waitUntilZero();
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        awaitAllInsertions();
     }
 
+    //    @Override
+//    public void advanceSimulation() {
+//        for (Body body : this) {
+//            simulationSignal.acquire();
+//            simulationExecutor.execute(() -> {
+//
+//                calculateForces(body);
+//
+//                simulationSignal.release();
+//            });
+//        }
+//        simulationSignal.waitUntilZero();
+//
+//        for (Body body : this) {
+//            simulationSignal.acquire();
+//            simulationExecutor.execute(() -> {
+//                body.move();
+//
+//                simulationSignal.release();
+//            });
+//        }
+//        simulationSignal.waitUntilZero();
+//    }
+
     public void awaitAllInsertions() {
-        //insertionSignal.waitUntilZero();
-        insertionPhaser.awaitAdvance(insertionPhaser.arrive());
+        insertionSignal.waitUntilZero();
     }
 
     public void shutdown() {
